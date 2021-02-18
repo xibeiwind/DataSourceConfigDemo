@@ -1,0 +1,37 @@
+.data-flow-chart {
+  .data-source {
+    text {
+      user-select: none;
+      .title {
+        fill: #000;
+      }
+    }
+    rect {
+      fill: transparent;
+      stroke: gray;
+      stroke-width: 1px;
+
+      &.border {
+        fill: white;
+      }
+      &.title-rect {
+        cursor: move;
+      }
+    }
+    .field {
+      .field-line {
+        stroke: gray;
+      }
+      .field-title {
+        fill: blue;
+      }
+      .field-control-point {
+        fill: rgb(86, 245, 99);
+        stroke: rgb(86, 245, 99);
+        &.field-control-point-drag{
+          fill: blue;
+        }
+      }
+    }
+  }
+}

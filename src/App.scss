@@ -1,0 +1,13 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+.app{
+  svg{
+    width: 100%;
+    height: 600px;
+    border: 1px solid gray;
+    box-shadow: 1px 1px 1px gray;
+    box-sizing: border-box;
+  }
+}
