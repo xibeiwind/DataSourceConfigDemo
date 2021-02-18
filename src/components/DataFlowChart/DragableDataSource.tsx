@@ -11,6 +11,7 @@ interface IDragableDataSourceProps {
   source: IDataSource;
   onDrag(p: IPoint): void;
   onControlPointDrag: (p: IPoint) => void;
+  onActiveControlChanged?: (id:string)=> void;
 }
 interface IDragableDataSourceState {
   active?: boolean;
@@ -150,6 +151,10 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
       drawBezier: true,
       fromSource,
       bezierData
+    },()=>{
+      if(this.props.onActiveControlChanged){
+        this.props.onActiveControlChanged(this.props.source.id);
+      }
     });
   }
   onControlPointDrag = (point: IPoint, fieldId: string) => {

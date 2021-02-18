@@ -14,15 +14,19 @@ interface IDataFlowChartState {
 }
 export class DataFlowChart extends React.Component<IDataFlowChartProps, IDataFlowChartState>{
   state: IDataFlowChartState = {points: []};
+  activeSourceId: string;
   componentDidMount() {
-    const {data} = this.props;
-    const points = data.sources.flatMap(getDataSourceControlPoints);
-    this.setState({points});
-  }
-  componentDidUpdate(prevProps: IDataFlowChartProps) {
     // const {data} = this.props;
     // const points = data.sources.flatMap(getDataSourceControlPoints);
     // this.setState({points});
+  }
+  componentDidUpdate(prevProps: IDataFlowChartProps) {
+    
+  }
+  updatePoints=()=>{
+    const {data} = this.props;
+    const points = data.sources.filter(s=>s.id!==this.activeSourceId).flatMap(this.getDataSourceControlPoints);
+    this.setState({points});
   }
   render() {
     const {sources, connections} = this.props.data;
@@ -36,11 +40,17 @@ export class DataFlowChart extends React.Component<IDataFlowChartProps, IDataFlo
               this.props.onDataSourceChange(s);
             }}
             onControlPointDrag={this.onControlPointDrag}
+            onActiveControlChanged={this.onActiveControlChanged}
           />
           )}
         </svg>
       </>
     )
+  }
+  
+  onActiveControlChanged=(id:string)=>{
+    this.activeSourceId=id;
+    this.updatePoints();
   }
 
   onControlPointDrag = (p: IPoint) => {
@@ -53,6 +63,24 @@ export class DataFlowChart extends React.Component<IDataFlowChartProps, IDataFlo
       console.log(point);
     }
   }
+  getDataSourceControlPoints=(data: IDataSource): IControlPoint[] =>{
+    const {width: w, field} = constants.dataSource;
+    const {height: h} = field;
+    const {offset} = data;
+  
+    return data.fields.flatMap<IControlPoint>((f, i) => [
+      {
+        fieldId: f.id,
+        fromSource: true,
+        center: pointIncrease({x: w, y: (1.5 + i) * h}, offset),
+      },
+      {
+        fieldId: f.id,
+        fromSource: false,
+        center: pointIncrease({x: 0, y: (1.5 + i) * h}, offset),
+      }]);
+    
+  }
 }
 
 interface IControlPoint {
@@ -61,23 +89,6 @@ interface IControlPoint {
   center: IPoint;
 }
 
-function getDataSourceControlPoints(data: IDataSource): IControlPoint[] {
-  const {width: w, field} = constants.dataSource;
-  const {height: h} = field;
-  const {offset} = data;
-
-  return data.fields.flatMap<IControlPoint>((f, i) => [
-    {
-      fieldId: f.id,
-      fromSource: true,
-      center: pointIncrease({x: w, y: (1.5 + i) * h}, offset),
-    },
-    {
-      fieldId: f.id,
-      fromSource: false,
-      center: pointIncrease({x: 0, y: (1.5 + i) * h}, offset),
-    }]);
-}
 
 function contains(rect: IRect, point: IPoint) {
   const result = (
