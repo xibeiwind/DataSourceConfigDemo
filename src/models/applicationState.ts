@@ -86,7 +86,7 @@ export interface IDataSource {
   title?: string;
 
   fields: IDataField[];
-  offset?: IPoint;
+  offset: IPoint;
 }
 
 export interface IDataFlowChart {

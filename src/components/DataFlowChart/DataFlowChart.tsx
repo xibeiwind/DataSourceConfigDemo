@@ -70,21 +70,18 @@ function getDataSourceControlPoints(data: IDataSource): IControlPoint[] {
     {
       fieldId: f.id,
       fromSource: true,
-      center: pointIncrease({x: (1.5 + i) * h, y: w}, offset),
+      center: pointIncrease({x: w, y: (1.5 + i) * h}, offset),
     },
     {
       fieldId: f.id,
       fromSource: false,
-      center: pointIncrease({x: (1.5 + i) * h, y: 0}, offset),
+      center: pointIncrease({x: 0, y: (1.5 + i) * h}, offset),
     }]);
 }
 
 function contains(rect: IRect, point: IPoint) {
   const result = (
-    point.x >= rect.x &&
-    point.y >= rect.y &&
-    point.x <= rect.x + rect.w &&
-    point.y <= rect.y + rect.h
+    Math.abs(point.x-rect.x)<rect.w&&Math.abs(point.y-rect.y)<rect.h
   );
   if (result) {
     console.log(result);

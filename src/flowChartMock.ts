@@ -28,7 +28,8 @@ export function getMockChart(): IDataFlowChart {
             name: 'gender',
             title: 'gender',
           }
-        ]
+        ],
+        offset:{x:0,y:0}
       },
       {
         id: guid(),
@@ -50,7 +51,8 @@ export function getMockChart(): IDataFlowChart {
             name: 'gender',
             title: 'gender',
           }
-        ]
+        ],
+        offset:{x:0,y:0}
       }
     ],
     connections: []
