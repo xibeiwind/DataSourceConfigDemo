@@ -2,7 +2,7 @@ import React from 'react';
 import "./App.scss";
 import {DataFlowChart} from './components/DataFlowChart/DataFlowChart';
 import {getMockChart} from './flowChartMock';
-import {IDataFlowChart} from './models/applicationState';
+import {IDataFlowChart, IFieldConnection} from './models/applicationState';
 
 interface IAppProps {
 
@@ -55,6 +55,16 @@ export class App extends React.Component<IAppProps, IAppState>{
                 localStorage.setItem("chartData", JSON.stringify(chartData));
               });
             }}
+            onDataConnectionChange={(data: IFieldConnection[])=>{
+              const {chartData} = this.state;
+              chartData.connections = [];
+              chartData.connections=data;
+              this.setState({chartData}, () => {
+                localStorage.setItem("chartData", JSON.stringify(chartData));
+              });
+            }
+
+            }
           ></DataFlowChart>
         </div>
       </>

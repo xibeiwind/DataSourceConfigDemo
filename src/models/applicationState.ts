@@ -65,10 +65,16 @@ export interface IBezier {
 export interface IFieldConnection {
   id: string;
 
-  sourceId: string;
-  targetId: string;
-  cs: IPoint;
-  ct: IPoint;
+  source:{
+    sourceId:string;
+    fieldId:string;
+    control: IPoint;
+  };
+  target:{
+    sourceId:string;
+    fieldId:string;
+    control: IPoint;
+  };
 }
 
 export interface IDataField {

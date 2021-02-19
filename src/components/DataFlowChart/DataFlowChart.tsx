@@ -1,13 +1,17 @@
 import React from 'react';
-import {IDataFlowChart, IDataSource, IPoint, IRect} from '../../models/applicationState';
+import {IBezier, IDataFlowChart, IDataSource, IEndPoint, IFieldConnection, IPoint, IRect} from '../../models/applicationState';
 import {DragableDataSource} from './DragableDataSource';
 import "./DataFlowChart.scss";
 import {pointIncrease} from './pointAdd';
 import {constants} from "../constants";
+import { v4 as uuid } from 'uuid';
+import {Bezier} from './Bezier';
+const {dataSource: settings} = constants;
 const {size} = constants.dataSource.field.controlPoint;
 interface IDataFlowChartProps {
   data: IDataFlowChart;
   onDataSourceChange(data: IDataSource): void;
+  onDataConnectionChange(data: IFieldConnection[]): void;
 }
 interface IDataFlowChartState {
   points: IControlPoint[];
@@ -39,29 +43,103 @@ export class DataFlowChart extends React.Component<IDataFlowChartProps, IDataFlo
               s.offset = pointIncrease(s.offset ?? {x: 0, y: 0}, p);
               this.props.onDataSourceChange(s);
             }}
-            onControlPointDrag={this.onControlPointDrag}
+            onControlPointDragEnd={this.onControlPointDragEnd}
             onActiveControlChanged={this.onActiveControlChanged}
           />
           )}
+          {
+            connections.map((c) =>
+              <Bezier
+                data={
+                  {
+                    start: {
+                      point: this.getPoint(c.source.sourceId, c.source.fieldId, true),
+                      control: c.source.control
+                    },
+                    end: {
+                      point: this.getPoint(c.target.sourceId, c.target.fieldId, false),
+                      control: c.target.control
+                    }
+                  }}
+                  onStartPointChange={(p: IEndPoint)=>{this.onPointChange(c.id,p.control,true)}}
+                  onEndPointChange={(p: IEndPoint)=>{this.onPointChange(c.id,p.control,false)}}
+              />
+            )
+          }
         </svg>
       </>
     )
   }
   
+  onPointChange=(id:string,point:IPoint,isSource:boolean)=>{
+    const {data, onDataConnectionChange} =this.props;
+    const conn=data.connections.find(c=>c.id===id);
+    if(conn){
+      if(isSource){
+        conn.source.control=point;
+      }
+      else{
+        conn.target.control=point;
+      }
+      if(onDataConnectionChange){
+        onDataConnectionChange(data.connections);
+      }
+    }
+  }
+
+  getPoint=(sourceId:string, fieldId: string, fromSource: boolean)=>{
+    let p: IPoint={x:0,y:0};
+    const {sources} = this.props.data;
+    const source=sources.find(s=>s.id===sourceId);
+    if(source){
+      const {fields, offset} = source;
+      const {width: w} = settings;
+      const {height: h, controlPoint: size} = settings.field;
+      const field = fields.find(a => a.id == fieldId);
+      const index = fields.indexOf(field);
+      const x = offset.x + (fromSource ? w : 0);
+      const y = offset.y + (index + 1.5) * h;
+      p={x,y};
+    }
+    
+    return p;
+  }
+
   onActiveControlChanged=(id:string)=>{
     this.activeSourceId=id;
     this.updatePoints();
   }
 
-  onControlPointDrag = (p: IPoint) => {
+  onControlPointDragEnd = (p: IPoint, sourceId: string, fieldId:string, fromSource:boolean, bezierData: IBezier ) => {
     const {points} = this.state;
-    const point = points.find(item => contains({
+    const {onDataConnectionChange, data} =this.props;
+    const point = points.filter(item=> item.fromSource!==fromSource).find(item => contains({
       x: item.center.x - size.w / 2, y: item.center.y - size.h / 2,
       w: size.w, h: size.h
     }, p));
     if (point) {
+      let newConnection: IFieldConnection=undefined;
+      if(fromSource){
+        newConnection={
+        id: uuid(),
+        source:{
+          sourceId,
+          fieldId,
+          control:bezierData.start.control,
+        },
+        target:{
+          sourceId: point.sourceId,
+          fieldId: point.fieldId,
+          control: bezierData.end.control
+        }
+      }
+      const conns=[...data.connections,newConnection];
+      if(onDataConnectionChange){
+        onDataConnectionChange(conns);
+      }
       console.log(point);
     }
+  }
   }
   getDataSourceControlPoints=(data: IDataSource): IControlPoint[] =>{
     const {width: w, field} = constants.dataSource;
@@ -70,11 +148,13 @@ export class DataFlowChart extends React.Component<IDataFlowChartProps, IDataFlo
   
     return data.fields.flatMap<IControlPoint>((f, i) => [
       {
+        sourceId: data.id,
         fieldId: f.id,
         fromSource: true,
         center: pointIncrease({x: w, y: (1.5 + i) * h}, offset),
       },
       {
+        sourceId: data.id,
         fieldId: f.id,
         fromSource: false,
         center: pointIncrease({x: 0, y: (1.5 + i) * h}, offset),
@@ -84,6 +164,7 @@ export class DataFlowChart extends React.Component<IDataFlowChartProps, IDataFlo
 }
 
 interface IControlPoint {
+  sourceId: string;
   fieldId: string;
   fromSource: boolean;
   center: IPoint;
@@ -92,7 +173,7 @@ interface IControlPoint {
 
 function contains(rect: IRect, point: IPoint) {
   const result = (
-    Math.abs(point.x-rect.x)<rect.w&&Math.abs(point.y-rect.y)<rect.h
+    Math.abs(point.x-rect.x)<=rect.w&&Math.abs(point.y-rect.y)<=rect.h
   );
   if (result) {
     console.log(result);

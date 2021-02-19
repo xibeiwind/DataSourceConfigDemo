@@ -10,7 +10,7 @@ const {dataSource: settings} = constants;
 interface IDragableDataSourceProps {
   source: IDataSource;
   onDrag(p: IPoint): void;
-  onControlPointDrag: (p: IPoint) => void;
+  onControlPointDragEnd: (p: IPoint, sourceId: string, fieldId:string, fromSource:boolean, bezierData: IBezier ) => void;
   onActiveControlChanged?: (id:string)=> void;
 }
 interface IDragableDataSourceState {
@@ -49,6 +49,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
     const {fields, offset} = this.props.source;
     const {drawBezier, bezierData} = this.state;
     return <>
+    {drawBezier && <g ref={this.bezierGroupRef}> <Bezier data={bezierData}></Bezier></g>}
       <g className="data-source"
         transform={`translate(${offset?.x ?? 0},${offset?.y ?? 0})`}
       >
@@ -62,7 +63,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
         {this.rendTitle()}
         {this.rendFields(fields)}
       </g>
-      {drawBezier && <g ref={this.bezierGroupRef}> <Bezier data={bezierData}></Bezier></g>}
+      
     </>;
   }
 
@@ -122,7 +123,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
           isSource={false}
           onDragStart={p => this.onControlPointDragStart(p, field.id, false)}
           onDrag={p => this.onControlPointDrag(p, field.id)}
-          onDragEnd={p => this.onControlPointDragEnd(p, field.id, false)}
+          onDragEnd={p => this.onControlPointDragEnd(p, field.id)}
         ></FieldControlPoint>
       </g>
       <g transform={`translate(${w - size.w / 2}, ${(h - size.h) / 2})`}>
@@ -130,7 +131,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
           isSource={true}
           onDragStart={p => this.onControlPointDragStart(p, field.id, true)}
           onDrag={p => this.onControlPointDrag(p, field.id)}
-          onDragEnd={p => this.onControlPointDragEnd(p, field.id, true)}
+          onDragEnd={p => this.onControlPointDragEnd(p, field.id)}
         ></FieldControlPoint>
       </g>
     </>
@@ -138,7 +139,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
 
   onControlPointDragStart = (point: IPoint, fieldId: string, fromSource: boolean) => {
     const g = d3.select(this.bezierGroupRef.current);
-    g.raise();
+    g.lower();
 
     const offset = this.getControlPointOffset(fieldId, fromSource);
 
@@ -158,7 +159,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
     });
   }
   onControlPointDrag = (point: IPoint, fieldId: string) => {
-    const {onControlPointDrag} = this.props;
+    
     const {fromSource, bezierData} = this.state;
     const offset = this.getControlPointOffset(fieldId, fromSource);
     if (fromSource) {
@@ -167,15 +168,19 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
     else {
       bezierData.start.point = pointIncrease(offset, point);
     }
-    this.setState({bezierData}, () => {
-      if (onControlPointDrag) {
-        onControlPointDrag(pointIncrease(offset, point));
-      }
-    });
+    this.setState({bezierData});
 
   }
-  onControlPointDragEnd = (p: IPoint, fieldId: string, isSource: boolean) => {
-    // this.setState({drawBezier: false});
+  onControlPointDragEnd = (point: IPoint, fieldId: string) => {
+    const {onControlPointDragEnd, source} = this.props;
+    const {fromSource, bezierData} = this.state;
+    const offset = this.getControlPointOffset(fieldId, fromSource);
+     this.setState({drawBezier: false}, () => {
+      if (onControlPointDragEnd) {
+        onControlPointDragEnd(pointIncrease(offset, point),source.id,fieldId,fromSource,{...bezierData});
+      }
+    });
+    
   }
 
   getControlPointOffset = (fieldId: string, fromSource: boolean): IPoint => {
