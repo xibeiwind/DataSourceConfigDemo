@@ -138,8 +138,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
   }
 
   onControlPointDragStart = (point: IPoint, fieldId: string, fromSource: boolean) => {
-    const g = d3.select(this.bezierGroupRef.current);
-    g.lower();
+    
 
     const offset = this.getControlPointOffset(fieldId, fromSource);
 
@@ -159,7 +158,8 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
     });
   }
   onControlPointDrag = (point: IPoint, fieldId: string) => {
-    
+    const g = d3.select(this.bezierGroupRef.current);
+    g.raise();
     const {fromSource, bezierData} = this.state;
     const offset = this.getControlPointOffset(fieldId, fromSource);
     if (fromSource) {
