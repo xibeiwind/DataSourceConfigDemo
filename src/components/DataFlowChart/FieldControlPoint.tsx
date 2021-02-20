@@ -33,11 +33,11 @@ export class FieldControlPoint extends React.Component<IFieldControlPointProps, 
       .on("drag", function (e: DragEvent) {
         onDrag({x: e.x - size.w / 2, y: e.y - size.h / 2});
       })
-      .on("end", function (e: DragEvent) {
+      .on("end", function (e: any) {
 
         rect.classed("field-control-point-drag", false);
         d3.select(this).attr("stroke", null);
-        onDragEnd({x: e.x, y: e.y});
+        onDragEnd({x: e.x-p.x/2, y: e.y-p.y/2});
       }));
 
   }

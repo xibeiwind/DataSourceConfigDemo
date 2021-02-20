@@ -273,25 +273,33 @@ export class DataFlowChart extends React.Component<IDataFlowChartProps, IDataFlo
       w: size.w, h: size.h
     }, p));
     if (point) {
-      let newConnection: IFieldConnection=undefined;
-      if(fromSource){
-        newConnection={
-        id: uuid(),
-        source:{
-          sourceId,
-          fieldId,
-          control:bezierData.start.control,
-        },
-        target:{
-          sourceId: point.sourceId,
-          fieldId: point.fieldId,
-          control: bezierData.end.control
+      const isExisting=data.connections.find(
+        c=>c.source.sourceId===sourceId
+        &&c.source.fieldId===fieldId
+        &&c.target.sourceId===point.sourceId
+        &&c.target.fieldId===point.fieldId);
+      if (!isExisting) {
+        let newConnection: IFieldConnection = undefined;
+        if (fromSource) {
+          newConnection = {
+            id: uuid(),
+            source: {
+              sourceId,
+              fieldId,
+              control: bezierData.start.control,
+            },
+            target: {
+              sourceId: point.sourceId,
+              fieldId: point.fieldId,
+              control: bezierData.end.control
+            }
+          }
+          const conns = [...data.connections, newConnection];
+          if (onDataConnectionChange) {
+            onDataConnectionChange(conns);
+          }
         }
-      }
-      const conns=[...data.connections,newConnection];
-      if(onDataConnectionChange){
-        onDataConnectionChange(conns);
-      }
+      
       console.log(point);
     }
   }
