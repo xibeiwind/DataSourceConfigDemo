@@ -37,7 +37,7 @@ export class ControlPoint extends Component<IControlPointProps, IControlPointSta
     const c = pointIncrease(base, control);
     const cfg = getPointConfig(active);
 
-    return <>
+    return <g className="u-control">
       <Point
         x={c.x}
         y={c.y}
@@ -51,7 +51,7 @@ export class ControlPoint extends Component<IControlPointProps, IControlPointSta
           x2={c.x}
           y2={c.y}
         />}
-    </>;
+    </g>;
   }
 }
 

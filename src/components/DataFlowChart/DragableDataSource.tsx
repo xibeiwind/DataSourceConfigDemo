@@ -12,6 +12,7 @@ interface IDragableDataSourceProps {
   onDrag(p: IPoint): void;
   onControlPointDragEnd: (p: IPoint, sourceId: string, fieldId:string, fromSource:boolean, bezierData: IBezier ) => void;
   onActiveControlChanged?: (id:string)=> void;
+  onSelected?:()=>void;
 }
 interface IDragableDataSourceState {
   active?: boolean;
@@ -50,7 +51,7 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
     const {drawBezier, bezierData} = this.state;
     return <>
     {drawBezier && <g ref={this.bezierGroupRef}> <Bezier data={bezierData}></Bezier></g>}
-      <g className="data-source"
+      <g className={this.props.source.active?"data-source active-g":"data-source"}
         transform={`translate(${offset?.x ?? 0},${offset?.y ?? 0})`}
       >
         <rect
@@ -83,14 +84,28 @@ export class DragableDataSource extends Component<IDragableDataSourceProps, IDra
         ref={this.rectRef}
         className="title-rect"
         width={w}
-        height={h}>
-
+        height={h}
+        onClick={this.onRectClick}
+        >
+        
       </rect>
       <text
         y={h / 2}
         className="title">
         {title ?? name}
       </text></>;
+  }
+  onRectClick=(e:any)=>{
+    // if(e.target.parentNode?.nodeName==="g"){
+    //   d3.selectAll(".active-g")
+    //   .classed("active-g", false);
+    //   const parentGroup=d3.select(e.target.parentNode);
+    //   parentGroup.classed("active-g",true);
+    // }
+    const {onSelected: onSelect} =this.props;
+    if(onSelect){
+      onSelect();
+    }
   }
   rendFields = (fields: IDataField[]) => {
     const {height: h} = settings.field;

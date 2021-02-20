@@ -57,7 +57,14 @@ export class Bezier extends Component<IBezierProps, IBezierState>{
     }
   }
 
-  onPathClick = (e: MouseEvent) => {
+  onPathClick = (e: any) => {
+    // if(e.target.parentNode?.nodeName==="g"){
+    //   d3.selectAll(".active-g")
+    //   .classed("active-g", false);
+    //   const parentGroup=d3.select(e.target.parentNode);
+    //   parentGroup.classed("active-g",true);
+    // }
+    
     const {onSelected} = this.props;
     if (onSelected) {
       onSelected();

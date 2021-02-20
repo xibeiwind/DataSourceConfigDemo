@@ -75,6 +75,7 @@ export interface IFieldConnection {
     fieldId:string;
     control: IPoint;
   };
+  active?: boolean,
 }
 
 export interface IDataField {
@@ -93,6 +94,7 @@ export interface IDataSource {
 
   fields: IDataField[];
   offset: IPoint;
+  active?: boolean
 }
 
 export interface IDataFlowChart {

@@ -1,4 +1,7 @@
 .data-flow-chart {
+  .selection-rect{
+    fill: rgba(173, 178, 248, 0.5)
+  }
   .data-source {
     text {
       user-select: none;
@@ -16,6 +19,11 @@
       }
       &.title-rect {
         cursor: move;
+      }
+    }
+    &.active-g{
+      rect {
+        stroke: #ffa500;
       }
     }
     .field {

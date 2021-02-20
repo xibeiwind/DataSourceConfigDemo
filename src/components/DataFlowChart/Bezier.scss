@@ -1,12 +1,24 @@
-.u-line {
-  stroke: #aaa;
-  stroke-dasharray: 2 2;
-}
-.u-path {
-  stroke: #ffa500;
-  fill: none;
-}
-
-.u-circle {
-  fill: #ffa500;
+g {
+  .u-path {
+    stroke: #ffa500;
+    fill: none;
+  }
+  .u-circle {
+    fill: #ffa500;
+  }
+  .u-control{
+    .u-circle {
+      fill: none;
+    }
+  }
+  &.active-g{
+    .u-line {
+      stroke: #aaa;
+      stroke-dasharray: 2 2;
+    }
+    .u-circle {
+      fill: #ffa500;
+    }
+  }
+  
 }

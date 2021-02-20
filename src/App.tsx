@@ -1,6 +1,7 @@
 import React from 'react';
 import "./App.scss";
 import {DataFlowChart} from './components/DataFlowChart/DataFlowChart';
+import {KeyboardManager} from './components/keyboardManager';
 import {getMockChart} from './flowChartMock';
 import {IDataFlowChart, IFieldConnection} from './models/applicationState';
 
@@ -47,6 +48,7 @@ export class App extends React.Component<IAppProps, IAppState>{
               this.setState({data});
             }}></Bezier>
           </svg> */}
+          <KeyboardManager>
           <DataFlowChart data={chartData}
             onDataSourceChange={(s) => {
               const {chartData} = this.state;
@@ -54,7 +56,13 @@ export class App extends React.Component<IAppProps, IAppState>{
               this.setState({chartData}, () => {
                 localStorage.setItem("chartData", JSON.stringify(chartData));
               });
-            }}
+            }
+          }
+          onDataChange={(data)=>{
+            this.setState({chartData:data}, () => {
+              localStorage.setItem("chartData", JSON.stringify(chartData));
+            });
+          }}
             onDataConnectionChange={(data: IFieldConnection[])=>{
               const {chartData} = this.state;
               chartData.connections = [];
@@ -66,6 +74,7 @@ export class App extends React.Component<IAppProps, IAppState>{
 
             }
           ></DataFlowChart>
+          </KeyboardManager>
         </div>
       </>
     )

@@ -7,6 +7,9 @@
   "scripts": {
     "start": "react-scripts start"
   },
+  "eslintConfig": {
+    "extends": "react-app"
+},
   "dependencies": {
     "d3": "^6.5.0",
     "node-sass": "4.14.1",
